@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mind Arena - Memory Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url('https://store-images.s-microsoft.com/image/apps.54588.14090654178473619.aa2706f7-9244-4d37-b59f-3f87f7589476.6a5a6db1-70ba-4b57-a879-7f9264cd3a40?mode=scale&q=90&h=1080&w=1920') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 2;
+        }
+        .title-box {
+            display: inline-block;
+            padding: 5px 40px;
+            border: 3px solid #e74c3c;
+            border-radius: 12px;
+            background-color: rgba(240, 164, 164, 0.2);
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+        
+        h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 56px;
+            margin-bottom: 0px;
+            color: #e74c3c;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        h2 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            color: #f1c40f;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        .level-box {
+            border: 2px solid #f1c40f;
+            border-radius: 10px;
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+        .stats {
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); 
+            grid-template-rows: repeat(2, 1fr); 
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .card {
+            width: 100px;
+            height: 100px;
+            background: #f39c12;
+            border: 2px solid #e67e22;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28pt;
+            cursor: pointer;
+            border-radius: 10px;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+        }
+        .card-back {
+            background: #3498db;
+            color: #ffffff;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            border: 2px solid #2980b9;
+        }
+        .win-message {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            background-color: rgba(100, 150, 200, 0.9);
+            color: #282A3A;
+            border-radius: 8px;
+            padding: 20px;
+            font-size: 24px;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        .congratulations {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 10px 0;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        .win-details {
+            font-size: 20px;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .party-bomb {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: confetti-fall 1.5s ease-out forwards;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translate(var(--dx, 0) * 100vw, var(--dy, 0) * 100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        .btn-custom, .btn-danger {
+            width: 120px;
+            margin-top: 10px;
+            background-color: #2ecc71;
+            border: none;
+            color: #ffffff;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .btn-custom:hover, .btn-danger:hover {
+            background-color: #27ae60;
+            transform: scale(1.05);
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container game-container">
+        <div class="title-box">
+        <h1>The Mind Arena</h1></div>
+        <h2 class="level-box">Level 4</h2>
+        <div class="stats">
+            <div class="moves">Moves: 0</div>
+            <div class="timer">Time: 0 sec</div>
+        </div>
+        <div class="board" id="board"></div>
+        <div class="win-message">
+            <div class="congratulations" id="congratulationsMessage"></div>
+            <div class="win-details" id="winDetailsMessage"></div>
+        </div>
+        <div class="button-container">
+            <button class="btn btn-custom" id="nextButton" style="display: none;">Next Level</button>
+            <button class="btn btn-custom" id="restartButton" style="display: none;">Restart</button>
+            <button class="btn btn-danger" id="replayButton" style="display: none;">Replay</button>
+            <button class="btn btn-danger" id="quitButton">Quit</button>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        const board = document.getElementById('board');
+        const winMessage = document.querySelector('.win-message');
+        const congratulationsMessage = document.getElementById('congratulationsMessage');
+        const winDetailsMessage = document.getElementById('winDetailsMessage');
+        const movesText = document.querySelector('.moves');
+        const timerText = document.querySelector('.timer');
+        const nextButton = document.getElementById('nextButton');
+        const restartButton = document.getElementById('restartButton');
+        const replayButton = document.getElementById('replayButton');
+        const quitButton = document.getElementById('quitButton');
+
+        let moves = 0;
+        let timer = 0;
+        let loop = null;
+        let flippedCards = 0;
+        let firstCard, secondCard;
+
+        const emojis = ['🥔', '🍒', '🍌', '🍇', '🍉'];
+
+        const startGame = () => {
+            moves = 0;
+            timer = 0;
+            flippedCards = 0;
+            firstCard = null;
+            secondCard = null;
+            clearInterval(loop);
+            movesText.innerText = 'Moves: 0';
+            timerText.innerText = 'Time: 0 sec';
+            winMessage.style.display = 'none';
+            congratulationsMessage.innerText = '';
+            winDetailsMessage.innerText = '';
+            nextButton.style.display = 'none';
+            restartButton.style.display = 'none';
+            replayButton.style.display = 'none';
+            generateGame();
+            startTimer();
+        };
+
+        const startTimer = () => {
+            loop = setInterval(() => {
+                timer++;
+                timerText.innerText = `Time: ${timer} sec`;
+            }, 1000);
+        };
+
+        const generateGame = () => {
+            const items = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+            board.innerHTML = items.map(item => `
+                <div class="card" data-item="${item}">
+                    <div class="card-back">${item}</div>
+                </div>`).join('');
+        };
+
+        const showCelebration = () => {
+            // Trigger confetti burst
+            confetti({
+                particleCount: 200,
+                spread: 70,
+                origin: { y: 0.6 },
+            });
+
+            // Trigger party bomb burst
+            const partyBombContainer = document.createElement('div');
+            partyBombContainer.className = 'party-bomb';
+            document.body.appendChild(partyBombContainer);
+
+            // Create 100 confetti pieces
+            for (let i = 0; i < 100; i++) {
+                const confettiPiece = document.createElement('div');
+                confettiPiece.className = 'confetti-piece';
+
+                // Randomize colors
+                confettiPiece.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+
+                // Randomize movement directions
+                confettiPiece.style.setProperty('--dx', (Math.random() * 2 - 1).toFixed(2));
+                confettiPiece.style.setProperty('--dy', (Math.random() * 2 - 1).toFixed(2));
+
+                // Randomize start position
+                confettiPiece.style.top = `${Math.random() * 100}%`;
+                confettiPiece.style.left = `${Math.random() * 100}%`;
+
+                partyBombContainer.appendChild(confettiPiece);
+            }
+
+            // Remove the party bomb container after animation
+            setTimeout(() => {
+                partyBombContainer.remove();
+            }, 1500);
+        };
+
+        const checkWin = () => {
+            if (document.querySelectorAll('.card:not(.flipped)').length === 0) {
+                clearInterval(loop);
+                winMessage.style.display = 'block';
+                congratulationsMessage.innerText = 'Congratulations!';
+                winDetailsMessage.innerText = `You won in ${moves} moves and ${timer} seconds!`;
+                nextButton.style.display = 'block';
+                replayButton.style.display = 'block';
+                restartButton.style.display = 'none';
+
+                // Show combined celebration
+                showCelebration();
+            }
+        };
+
+        board.addEventListener('click', event => {
+            if (event.target.closest('.card') && !event.target.closest('.card').classList.contains('flipped')) {
+                if (flippedCards < 2) {
+                    const card = event.target.closest('.card');
+                    card.classList.add('flipped');
+                    card.querySelector('.card-back').style.display = 'flex';
+                    moves++;
+                    movesText.innerText = `Moves: ${moves}`;
+                    flippedCards++;
+
+                    if (flippedCards === 1) {
+                        firstCard = card;
+                    } else {
+                        secondCard = card;
+
+                        if (firstCard.dataset.item === secondCard.dataset.item) {
+                            flippedCards = 0;
+                            firstCard = null;
+                            secondCard = null;
+                            checkWin();
+                        } else {
+                            setTimeout(() => {
+                                firstCard.classList.remove('flipped');
+                                secondCard.classList.remove('flipped');
+                                firstCard.querySelector('.card-back').style.display = 'none';
+                                secondCard.querySelector('.card-back').style.display = 'none';
+                                flippedCards = 0;
+                                firstCard = null;
+                                secondCard = null;
+                            }, 1000);
+                        }
+                    }
+                }
+            }
+        });
+
+        nextButton.addEventListener('click', () => {
+            window.location.href = 'level5.html'; 
+        });
+
+        restartButton.addEventListener('click', () => {
+            startGame();
+        });
+
+        replayButton.addEventListener('click', () => {
+            startGame();
+        });
+
+        quitButton.addEventListener('click', () => {
+            window.location.href ='home.html';
+        });
+        
+        startGame();
+    </script>
+</body>
+</html>

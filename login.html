@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Login/Register with Email Notifications</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+   
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+        body {
+            background-color: #778DA9;
+            background: linear-gradient(to right,#778DA9,#1B263B);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            height: 100vh;
+        }
+        /* Previous CSS styles remain the same */
+        .error-message {
+            color: #a82d2d;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        .success-message {
+            color: green;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        *{
+            margin: 0%;
+            padding: 0%;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+        body{
+            background-color: #778DA9;
+            background: linear-gradient(to right,#778DA9,#1B263B);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .container{
+            background-color: #fff;
+            border-radius: 150px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.35);
+            position: relative;
+            overflow: hidden;
+            width: 768px;
+            max-width: 100%;
+            min-height: 480px;
+        }
+        .container p{
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: 0.3px;
+            margin: 20px 0;
+        }
+        .container span{
+            font-size: 12px;
+        
+        }
+        .container a{
+            color: #333;
+            font-size: 13px;
+            text-decoration: none;
+            margin: 15px 0 10px;
+        }
+        
+        .container button{
+            background-color: #a82d2d;
+            color: #fff;
+            padding: 10px 45px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-weight:600 ;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-top: 10px;
+            cursor: pointer;
+        
+        }
+        .container button.hidden {
+            background-color: transparent;
+            border-color: #fff;
+        }
+        .container form{
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0 40px;
+            height: 100%;
+        }
+        .container input {
+            background-color: #eee;
+            border: none;
+            margin: 8px 0;
+            padding: 10px 15px;
+            font-size: 13px;
+            border-radius: 8px;
+            width: 100%;
+            outline: none;
+        }
+        .sign-up, .sign-in {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            transition: all 0.6s ease-in-out;
+        }
+        .sign-in{
+            left: 0;
+            width: 50%;
+            z-index: 2;
+        }
+        .container.active .sign-in{
+            transform: translateX(100%);
+        }
+        .sign-up{
+            left: 0;
+            width: 50%;
+            z-index:1;
+            opacity: 0;
+        
+        }
+        .container.active .sign-up{
+            transform: translateX(100%);
+            opacity: 1;
+            z-index: 5;
+            animation: move 0.6s;
+        }
+        @keyframes move {
+            0%,49.99%{
+                opacity: 0;
+                z-index: 1;
+            }
+            50%,100%{
+                opacity: 1;
+                z-index: 5;
+            }
+        }
+        .icons{
+            margin: 20px 0;
+        }
+        .icons a{
+            border: 1px solid #ccc;
+            border-radius: 20%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 3px;
+            width: 40px;
+            height: 40px;
+        }
+        .toggle-container{
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 50%;
+            height: 100%;
+            overflow: hidden;
+            border-radius: 150px;
+            z-index: 1000;
+            transition: all 0.6s ease-in-out;
+        }
+        .container.active .toggle-container {
+            transform: translateX(-100%);
+            border-radius: 150px;
+        }
+        .toggle{
+            background-color: #a82d2d;
+            height: 100%;
+            background: linear-gradient( to right,#c05c5c,#a82d2d);
+            color: #fff;
+            position: relative;
+            left: -100%;
+            width: 200%;
+            transform: translateX(0);
+            transition: all 0.6s ease-in-out;
+        }
+        .container.active .toggle{
+            transform: translateX(50%);
+        }
+        .toggle-panel{
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 0 30px;
+            text-align: center;
+            top: 0;
+            transform: translateX(0);
+            transition: all 0.6s ease-in-out;
+        }
+        .toggle-left{
+            transform: translateX(-200%);
+        }
+        .container.active .toggle-left{
+            transform: translateX(0);
+        }
+        .toggle-right{
+            right: 0;
+            transform: translateX(0);
+        }
+        .container.active .toggle-right{
+            transform: translateX(200%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container">
+        <div class="sign-up">
+            <form id="signup-form" action="">
+                <h1>Create Account</h1>
+                <span>or use email for registration</span>
+                <input type="text" id="signup-name" placeholder="Full Name" required>
+                <input type="text" id="signup-username" placeholder="Username" required>
+                <input type="email" id="signup-email" placeholder="Email id" required>
+                <input type="password" id="signup-password" placeholder="Password" required>
+                <input type="password" id="signup-confirm-password" placeholder="Confirm Password" required>
+                <div id="signup-error" class="error-message"></div>
+                <div id="signup-success" class="success-message"></div>
+                <button type="submit">Sign Up</button>
+            </form>
+        </div>
+        <div class="sign-in">
+            <form  id="login-form" action="index1.html">
+                <h1>Sign In</h1>
+                <span>or use email password</span>
+                <input type="email" id="login-email" placeholder="Email id" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <div id="login-error" class="error-message"></div>
+                <div id="login-success" class="success-message"></div>
+                <button type="submit" id="login">Sign In</button>
+                <a href="#">Forget Password</a>
+            </form>
+        </div>
+        <div class="toggle-container">
+            <div class="toggle">
+                <div class="toggle-panel toggle-left">
+                    <h1>Welcome User!</h1>
+                    <p>If you already have an account</p>
+                    <button id="loginbtn">Sign In</button>
+                </div>
+                <div class="toggle-panel toggle-right">
+                    <h1>Hello, User!</h1>
+                    <p>If you don't have an account</p>
+                    <button class="hidden" id="registerbtn">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+      // Common Configuration
+const GOOGLE_APPS_SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL"; // Define the base URL here
+
+// Toggle functionality
+const container = document.getElementById('container');
+const registerbtn = document.getElementById('registerbtn');
+const loginbtn = document.getElementById('loginbtn');
+
+registerbtn.addEventListener("click", () => container.classList.add("active"));
+loginbtn.addEventListener("click", () => container.classList.remove("active"));
+
+// Utility Functions
+function validatePassword(password) {
+    // Password requirements: 8+ characters, uppercase, lowercase, number
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    return passwordRegex.test(password);
+}
+
+function sanitizeInput(input) {
+    const div = document.createElement('div');
+    div.textContent = input;
+    return div.innerHTML;
+}
+
+async function postData(scriptURL, data) {
+    try {
+        const response = await fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(data),
+        });
+        return response; // Note: With `no-cors`, this will always be opaque
+    } catch (error) {
+        console.error("Network error:", error.message);
+        throw error;
+    }
+}
+
+// Signup Form Handler
+document.getElementById('signup-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const signupError = document.getElementById('signup-error');
+    const signupSuccess = document.getElementById('signup-success');
+    signupError.style.display = 'none';
+    signupSuccess.style.display = 'none';
+
+    const name = sanitizeInput(document.getElementById('signup-name').value);
+    const username = sanitizeInput(document.getElementById('signup-username').value);
+    const email = document.getElementById('signup-email').value;
+    const password = document.getElementById('signup-password').value;
+    const confirmPassword = document.getElementById('signup-confirm-password').value;
+
+    if (password !== confirmPassword) {
+        signupError.textContent = "Passwords do not match";
+        signupError.style.display = 'block';
+        return;
+    }
+
+    if (!validatePassword(password)) {
+        signupError.textContent = "Password must be at least 8 characters, with uppercase, lowercase, and number";
+        signupError.style.display = 'block';
+        return;
+    }
+
+    try {
+        await postData(GOOGLE_APPS_SCRIPT_URL, {
+            action: 'register',
+            name: name,
+            username: username,
+            email: email,
+            password: btoa(password),
+        });
+        e.target.reset();
+        signupSuccess.textContent = "Registration Successful! Check your email for confirmation.";
+        signupSuccess.style.display = 'block';
+    } catch {
+        signupError.textContent = "Registration failed. Please try again.";
+        signupError.style.display = 'block';
+    }
+});
+
+// Login Form Handler
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const loginError = document.getElementById('login-error');
+    const loginSuccess = document.getElementById('login-success');
+    loginError.style.display = 'none';
+    loginSuccess.style.display = 'none';
+
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+
+    try {
+        await postData(GOOGLE_APPS_SCRIPT_URL, {
+            action: 'login',
+            email: email,
+            password: btoa(password),
+        });
+        loginSuccess.textContent = "Login Successful! Redirecting...";
+        loginSuccess.style.display = 'block';
+
+        setTimeout(() => window.location.href = 'index1.html', 1500);
+    } catch {
+        loginError.textContent = "Login failed. Please check your credentials.";
+        loginError.style.display = 'block';
+    }
+});
+
+    </script>
+</body>
+</html>
