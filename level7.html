@@ -249,6 +249,7 @@
             <div class="win-details" id="winDetailsMessage"></div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
 
     <script>
         const board = document.getElementById('board');
@@ -308,6 +309,14 @@
                 </div>`).join('');
         };
 
+        const showCelebration = () => {
+            confetti({
+                particleCount: 200,
+                spread: 70,
+                origin: { y: 0.6 },
+            });
+        };
+
         const checkWin = () => {
             if (document.querySelectorAll('.card:not(.flipped)').length === 0) {
                 clearInterval(loop);
@@ -319,6 +328,8 @@
 
                 undoButton.style.display = 'none';
                 restartButton.style.display = 'none';
+                
+                showCelebration();
             }
         };
 
