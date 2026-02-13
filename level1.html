@@ -40,17 +40,35 @@
             text-align: center;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             margin-bottom: 10px;
+            animation: slideInDown 0.8s ease-out;
+            backdrop-filter: blur(10px);
         }
 
 
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+        
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
 
         h1 {
             font-family: 'Bebas Neue', sans-serif;
             font-size: 56px;
             margin-bottom: 0px;
             color: #e74c3c;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6), 0 0 20px rgba(231, 76, 60, 0.5);
             font-weight: bold;
             letter-spacing: 2px;
         }
@@ -87,7 +105,7 @@
         .card {
             width: 100px;
             height: 100px;
-            background: #f39c12;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
             border: 2px solid #e67e22;
             display: flex;
             justify-content: center;
@@ -96,16 +114,17 @@
             cursor: pointer;
             border-radius: 10px;
             position: relative;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
 
         .card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
         }
 
         .card-back {
-            background: #3498db;
+            background: linear-gradient(135deg, #3498db, #2980b9);
             color: #ffffff;
             display: none;
             justify-content: center;
@@ -115,19 +134,51 @@
             width: 100%;
             position: absolute;
             border: 2px solid #2980b9;
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.2);
         }
 
         .win-message {
             display: none;
             text-align: center;
             margin-top: 20px;
-            background-color: rgba(100, 150, 200, 0.9);
+            background: linear-gradient(135deg, rgba(100, 150, 200, 0.95), rgba(80, 120, 180, 0.95));
             color: #282A3A;
-            border-radius: 8px;
+            border-radius: 15px;
             padding: 20px;
             font-size: 24px;
             opacity: 0;
-            animation: fadeIn 0.5s forwards;
+            animation: fadeInScale 0.5s forwards;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+        
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes starPop {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1.3) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); opacity: 1; }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         .congratulations {
@@ -187,17 +238,45 @@
             border: none;
             color: #ffffff;
             border-radius: 5px;
-            transition: background-color 0.3s, transform 0.2s;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-custom::before,
+        .btn-danger::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+        }
+        
+        .btn-custom:hover::before,
+        .btn-danger:hover::before {
+            width: 200px;
+            height: 200px;
         }
 
         .btn-custom:hover,
         .btn-danger:hover {
             background-color: #27ae60;
-            transform: scale(1.05);
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
         }
 
         .btn-danger {
             background-color: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
         }
 
         .button-container {
@@ -226,6 +305,7 @@
             <button class="btn btn-custom" id="nextButton" style="display: none;">Next Level</button>
             <button class="btn btn-custom" id="restartButton" style="display: none;">Restart</button>
             <button class="btn btn-danger" id="replayButton" style="display: none;">Replay</button>
+            <button class="btn btn-danger" id="menuButton" style="display: none;">Menu</button>
             <button class="btn btn-danger" id="quitButton">Quit</button>
         </div>
     </div>
@@ -242,30 +322,40 @@
         const restartButton = document.getElementById('restartButton');
         const replayButton = document.getElementById('replayButton');
         const quitButton = document.getElementById('quitButton');
+        const menuButton = document.getElementById('menuButton');
 
         let moves = 0;
         let timer = 0;
+        let timeLimit = 7; // 7 seconds time limit for level 1
         let loop = null;
         let flippedCards = 0;
         let firstCard, secondCard;
+        let gameOver = false;
 
         const emojis = ['🥔', '🍒'];
 
         const startGame = () => {
             moves = 0;
             timer = 0;
+            gameOver = false;
             flippedCards = 0;
             firstCard = null;
             secondCard = null;
             clearInterval(loop);
             movesText.innerText = 'Moves: 0';
-            timerText.innerText = 'Time: 0 sec';
+            timerText.innerText = `Time: ${timeLimit}s`;
+            timerText.style.color = '#fff';
+            timerText.style.fontSize = '20px';
+            timerText.style.animation = 'none';
             winMessage.style.display = 'none';
+            winMessage.style.background = 'linear-gradient(135deg, rgba(100, 150, 200, 0.95), rgba(80, 120, 180, 0.95))';
             congratulationsMessage.innerText = '';
             winDetailsMessage.innerText = '';
             nextButton.style.display = 'none';
             restartButton.style.display = 'none';
             replayButton.style.display = 'none';
+            if (menuButton) menuButton.style.display = 'none';
+            board.style.pointerEvents = 'auto';
             generateGame();
             startTimer();
         };
@@ -273,7 +363,22 @@
         const startTimer = () => {
             loop = setInterval(() => {
                 timer++;
-                timerText.innerText = `Time: ${timer} sec`;
+                const remaining = timeLimit - timer;
+                timerText.innerText = `Time: ${remaining}s`;
+                
+                // Warning when time is running out (last 2 seconds for level 1)
+                if (remaining <= 2 && remaining > 0) {
+                    timerText.style.color = '#ff4444';
+                    timerText.style.fontSize = '24px';
+                    timerText.style.animation = 'pulse 0.5s infinite';
+                }
+                
+                // Time's up!
+                if (remaining <= 0) {
+                    clearInterval(loop);
+                    gameOver = true;
+                    showGameOver();
+                }
             }, 1000);
         };
 
@@ -324,21 +429,106 @@
         };
 
         const checkWin = () => {
+            if (gameOver) return; // Don't check win if game is over
+            
             if (document.querySelectorAll('.card:not(.flipped)').length === 0) {
                 clearInterval(loop);
+                
+                // Save level completion with stars
+                const stars = calculateStars(moves, timer);
+                saveLevelProgress(1, stars, moves, timer);
+                
                 winMessage.style.display = 'block';
+                winMessage.style.opacity = '1';
+                winMessage.style.background = 'linear-gradient(135deg, rgba(100, 150, 200, 0.95), rgba(80, 120, 180, 0.95))';
                 congratulationsMessage.innerText = 'Congratulations!';
+                congratulationsMessage.style.color = '#282A3A';
                 winDetailsMessage.innerText = `You won in ${moves} moves and ${timer} seconds!`;
+                winDetailsMessage.style.color = '#282A3A';
+                
+                // Show stars
+                displayStars(stars);
+                
                 nextButton.style.display = 'block';
                 replayButton.style.display = 'block';
                 restartButton.style.display = 'none';
+                
+                // Add Menu button
+                const menuButton = document.getElementById('menuButton');
+                if (menuButton) menuButton.style.display = 'block';
 
                 // Show combined celebration
                 showCelebration();
             }
         };
+        
+        const calculateStars = (moves, time) => {
+            // Candy Crush style: faster = more stars
+            // Level 1: 7 seconds limit
+            if (time <= 3) return 3; // Fast: 3 stars
+            if (time <= 5) return 2; // Medium: 2 stars
+            return 1; // Slow: 1 star
+        };
+        
+        const showGameOver = () => {
+            board.style.pointerEvents = 'none';
+            
+            // Reset and show message
+            winMessage.style.display = 'block';
+            winMessage.style.opacity = '1';
+            winMessage.style.background = 'linear-gradient(135deg, rgba(231, 76, 60, 0.95), rgba(192, 57, 43, 0.95))';
+            winMessage.style.animation = 'fadeInScale 0.5s forwards, shake 0.5s 0.5s';
+            
+            congratulationsMessage.innerText = '⏰ Time\'s Up!';
+            congratulationsMessage.style.color = '#fff';
+            winDetailsMessage.innerHTML = `<div style="font-size: 60px; margin: 20px 0;">😢</div><div>Game Over! Try Again?</div>`;
+            winDetailsMessage.style.color = '#fff';
+            
+            // Hide next button, show replay and menu
+            nextButton.style.display = 'none';
+            restartButton.style.display = 'none';
+            replayButton.style.display = 'block';
+            if (menuButton) menuButton.style.display = 'block';
+        };
+        
+        const saveLevelProgress = (level, stars, moves, time) => {
+            const progress = JSON.parse(localStorage.getItem('gameProgress') || '{}');
+            
+            // Always save completion data, but only update if stars are better or it's the first completion
+            if (!progress[level] || !progress[level].completed || progress[level].stars < stars) {
+                progress[level] = { 
+                    stars, 
+                    moves, 
+                    time, 
+                    completed: true,
+                    unlocked: true 
+                };
+            }
+            
+            // Unlock next level
+            if (level < 10 && !progress[level + 1]) {
+                progress[level + 1] = { unlocked: true };
+            }
+            
+            localStorage.setItem('gameProgress', JSON.stringify(progress));
+        };
+        
+        const displayStars = (stars) => {
+            const starsContainer = document.createElement('div');
+            starsContainer.style.cssText = 'font-size: 40px; margin: 15px 0;';
+            for (let i = 0; i < 3; i++) {
+                const star = document.createElement('span');
+                star.textContent = i < stars ? '⭐' : '☆';
+                star.style.cssText = 'margin: 0 5px; display: inline-block; animation: starPop 0.5s ease-out;';
+                star.style.animationDelay = `${i * 0.2}s`;
+                starsContainer.appendChild(star);
+            }
+            winDetailsMessage.appendChild(starsContainer);
+        };
 
         board.addEventListener('click', event => {
+            if (gameOver) return; // Don't allow clicks if game is over
+            
             if (event.target.closest('.card') && !event.target.closest('.card').classList.contains('flipped')) {
                 if (flippedCards < 2) {
                     const card = event.target.closest('.card');
@@ -389,6 +579,12 @@
         quitButton.addEventListener('click', () => {
             window.location.href = 'index1.html';
         });
+        
+        if (menuButton) {
+            menuButton.addEventListener('click', () => {
+                window.location.href = 'levelbox.html';
+            });
+        }
 
         startGame();
     </script>

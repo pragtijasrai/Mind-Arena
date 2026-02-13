@@ -5,6 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Memory Game Levels</title>
   <style>
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+      60% {
+        opacity: 1;
+        transform: scale(1.1);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -13,12 +43,14 @@
       background-size: cover;
       text-align: center;
       color: #fff;
+      animation: fadeIn 0.5s ease-out;
     }
 
     h1 {
       margin-top: 20px;
       font-size: 36px;
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+      animation: slideInDown 0.8s ease-out;
     }
 
     .levels-container {
@@ -49,11 +81,19 @@
       color: white;
       cursor: pointer;
       position: relative;
-      transition: transform 0.2s, background-color 0.3s;
+      transition: all 0.3s ease;
+      animation: popIn 0.5s ease-out backwards;
     }
+    
+    .level-row .level-box:nth-child(1) { animation-delay: 0.1s; }
+    .level-row .level-box:nth-child(2) { animation-delay: 0.2s; }
+    .level-row .level-box:nth-child(3) { animation-delay: 0.3s; }
+    .level-row .level-box:nth-child(4) { animation-delay: 0.4s; }
+    .level-row .level-box:nth-child(5) { animation-delay: 0.5s; }
 
     .level-box:hover {
-      transform: scale(1.1);
+      transform: scale(1.15) rotate(5deg);
+      box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
     }
 
     .locked {
@@ -69,7 +109,13 @@
     }
 
     .unlocked {
-      background-color: rgba(0, 128, 0, 0.8);
+      background: linear-gradient(135deg, rgba(0, 200, 83, 0.9), rgba(0, 128, 0, 0.9));
+      box-shadow: 0 5px 20px rgba(0, 255, 0, 0.3);
+    }
+    
+    .unlocked:hover {
+      background: linear-gradient(135deg, rgba(0, 255, 100, 0.9), rgba(0, 200, 83, 0.9));
+      box-shadow: 0 10px 40px rgba(0, 255, 0, 0.5);
     }
   </style>
 </head>
@@ -78,12 +124,12 @@
   <div class="levels-container" id="levels"></div>
   <script>
     const totalLevels = 10;
-    const unlockedLevelKey = "unlockedLevel";
-    let unlockedLevel = parseInt(localStorage.getItem(unlockedLevelKey)) || 1;
-
+    
     function createLevelBoxes() {
       const levelsContainer = document.getElementById('levels');
       levelsContainer.innerHTML = '';
+      
+      const progress = JSON.parse(localStorage.getItem('gameProgress') || '{}');
 
       const row1 = document.createElement('div');
       row1.classList.add('level-row');
@@ -92,10 +138,31 @@
 
       for (let i = 1; i <= totalLevels; i++) {
         const levelBox = document.createElement('div');
-        levelBox.textContent = `Level ${i}`;
+        const levelProgress = progress[i] || {};
+        
         levelBox.classList.add('level-box');
+        
+        // Create level content
+        const levelText = document.createElement('div');
+        levelText.textContent = `Level ${i}`;
+        levelText.style.fontSize = '18px';
+        levelText.style.fontWeight = 'bold';
+        levelBox.appendChild(levelText);
+        
+        // Add stars if completed
+        if (levelProgress.completed) {
+          const starsDiv = document.createElement('div');
+          starsDiv.style.marginTop = '5px';
+          starsDiv.style.fontSize = '16px';
+          for (let j = 0; j < 3; j++) {
+            const star = document.createElement('span');
+            star.textContent = j < (levelProgress.stars || 0) ? '⭐' : '☆';
+            starsDiv.appendChild(star);
+          }
+          levelBox.appendChild(starsDiv);
+        }
 
-        if (i <= unlockedLevel) {
+        if (i === 1 || levelProgress.unlocked || levelProgress.completed) {
           levelBox.classList.add('unlocked');
           levelBox.addEventListener('click', () => redirectToLevel(i));
         } else {
@@ -116,14 +183,6 @@
     function redirectToLevel(level) {
       const url = `level${level}.html`;
       window.location.href = url;
-    }
-
-    function completeLevel(level) {
-      if (level === unlockedLevel && unlockedLevel < totalLevels) {
-        unlockedLevel++;
-        localStorage.setItem(unlockedLevelKey, unlockedLevel);
-        createLevelBoxes();
-      }
     }
 
     createLevelBoxes();

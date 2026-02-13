@@ -104,13 +104,13 @@
             cursor: pointer;
             border-radius: 10px;
             position: relative;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 140, 0, 0.3);
         }
 
         .card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 20px rgba(255, 140, 0, 0.6);
+            transform: scale(1.08) translateY(-5px) rotate(3deg);
+            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.7), 0 4px 15px rgba(0, 0, 0, 0.6);
         }
 
         .card-back {
@@ -232,6 +232,8 @@
                     <button class="btn btn-custom" id="undoButton" style="display: none;">Undo ⏪</button>
                     <div style="height: 10px;"></div>
                     <button class="btn btn-custom" id="restartButton">Restart 🔄</button>
+                    <div style="height: 10px;"></div>
+                    <button class="btn btn-danger" id="menuButton" style="display: none;">Menu 📋</button>
                     <div style="height: 10px;"></div>
                     <button class="btn btn-danger" id="quitButton">Quit ❌</button>
                 </div>

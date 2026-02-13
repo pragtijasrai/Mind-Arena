@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Progress</title>
+</head>
+<body>
+    <h1>Game Progress Debug</h1>
+    <button onclick="checkProgress()">Check Progress</button>
+    <button onclick="clearProgress()">Clear Progress</button>
+    <button onclick="addTestData()">Add Test Data</button>
+    <pre id="output"></pre>
+
+    <script>
+        function checkProgress() {
+            const progress = localStorage.getItem('gameProgress');
+            document.getElementById('output').textContent = 
+                'Raw: ' + progress + '\n\n' +
+                'Parsed: ' + JSON.stringify(JSON.parse(progress || '{}'), null, 2);
+        }
+
+        function clearProgress() {
+            localStorage.removeItem('gameProgress');
+            alert('Progress cleared!');
+            checkProgress();
+        }
+
+        function addTestData() {
+            const testData = {
+                1: { stars: 3, moves: 5, time: 3, completed: true, unlocked: true },
+                2: { stars: 2, moves: 8, time: 7, completed: true, unlocked: true },
+                3: { stars: 1, moves: 12, time: 14, completed: true, unlocked: true },
+                4: { unlocked: true },
+                5: { unlocked: true }
+            };
+            localStorage.setItem('gameProgress', JSON.stringify(testData));
+            alert('Test data added!');
+            checkProgress();
+        }
+
+        // Auto-check on load
+        window.onload = checkProgress;
+    </script>
+</body>
+</html>

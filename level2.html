@@ -78,7 +78,7 @@
         .card {
             width: 100px;
             height: 100px;
-            background: #f39c12;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
             border: 2px solid #e67e22;
             display: flex;
             justify-content: center;
@@ -87,14 +87,15 @@
             cursor: pointer;
             border-radius: 10px;
             position: relative;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
         .card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
         }
         .card-back {
-            background: #3498db;
+            background: linear-gradient(135deg, #3498db, #2980b9);
             color: #ffffff;
             display: none;
             justify-content: center;
@@ -104,6 +105,7 @@
             width: 100%;
             position: absolute;
             border: 2px solid #2980b9;
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.2);
         }
         .win-message {
             display: none;
@@ -132,6 +134,22 @@
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
+        }
+        @keyframes starPop {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1.3) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); opacity: 1; }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
         .party-bomb {
             position: fixed;
@@ -198,6 +216,7 @@
             <button class="btn btn-custom" id="nextButton" style="display: none;">Next Level</button>
             <button class="btn btn-custom" id="restartButton" style="display: none;">Restart</button>
             <button class="btn btn-danger" id="replayButton" style="display: none;">Replay</button>
+            <button class="btn btn-danger" id="menuButton" style="display: none;">Menu</button>
             <button class="btn btn-danger" id="quitButton">Quit</button>
         </div>
     </div>
@@ -214,30 +233,40 @@
         const restartButton = document.getElementById('restartButton');
         const replayButton = document.getElementById('replayButton');
         const quitButton = document.getElementById('quitButton');
+        const menuButton = document.getElementById('menuButton');
 
         let moves = 0;
         let timer = 0;
+        let timeLimit = 10; // 10 seconds time limit for level 2
         let loop = null;
         let flippedCards = 0;
         let firstCard, secondCard;
+        let gameOver = false;
 
         const emojis = ['🥔', '🍒', '🍌'];
 
         const startGame = () => {
             moves = 0;
             timer = 0;
+            gameOver = false;
             flippedCards = 0;
             firstCard = null;
             secondCard = null;
             clearInterval(loop);
             movesText.innerText = 'Moves: 0';
-            timerText.innerText = 'Time: 0 sec';
+            timerText.innerText = `Time: ${timeLimit}s`;
+            timerText.style.color = '#fff';
+            timerText.style.fontSize = '20px';
+            timerText.style.animation = 'none';
             winMessage.style.display = 'none';
+            winMessage.style.background = 'rgba(100, 150, 200, 0.9)';
             congratulationsMessage.innerText = '';
             winDetailsMessage.innerText = '';
             nextButton.style.display = 'none';
             restartButton.style.display = 'none';
             replayButton.style.display = 'none';
+            if (menuButton) menuButton.style.display = 'none';
+            board.style.pointerEvents = 'auto';
             generateGame();
             startTimer();
         };
@@ -245,7 +274,20 @@
         const startTimer = () => {
             loop = setInterval(() => {
                 timer++;
-                timerText.innerText = `Time: ${timer} sec`;
+                const remaining = timeLimit - timer;
+                timerText.innerText = `Time: ${remaining}s`;
+                
+                if (remaining <= 3 && remaining > 0) {
+                    timerText.style.color = '#ff4444';
+                    timerText.style.fontSize = '24px';
+                    timerText.style.animation = 'pulse 0.5s infinite';
+                }
+                
+                if (remaining <= 0) {
+                    clearInterval(loop);
+                    gameOver = true;
+                    showGameOver();
+                }
             }, 1000);
         };
 
@@ -298,19 +340,88 @@
         const checkWin = () => {
             if (document.querySelectorAll('.card:not(.flipped)').length === 0) {
                 clearInterval(loop);
+                const stars = calculateStars(moves, timer);
+                saveLevelProgress(2, stars, moves, timer);
                 winMessage.style.display = 'block';
+                winMessage.style.opacity = '1';
                 congratulationsMessage.innerText = 'Congratulations!';
                 winDetailsMessage.innerText = `You won in ${moves} moves and ${timer} seconds!`;
+                displayStars(stars);
                 nextButton.style.display = 'block';
                 replayButton.style.display = 'block';
                 restartButton.style.display = 'none';
-
-                // Show combined celebration
+                if (menuButton) menuButton.style.display = 'block';
                 showCelebration();
             }
         };
+        
+        const calculateStars = (moves, time) => {
+            // Candy Crush style: faster = more stars
+            // Level 2: 10 seconds limit
+            if (time <= 5) return 3; // Fast: 3 stars
+            if (time <= 7) return 2; // Medium: 2 stars
+            return 1; // Slow: 1 star
+        };
+        
+        const showGameOver = () => {
+            board.style.pointerEvents = 'none';
+            
+            // Reset and show message
+            winMessage.style.display = 'block';
+            winMessage.style.opacity = '1';
+            winMessage.style.background = 'linear-gradient(135deg, rgba(231, 76, 60, 0.95), rgba(192, 57, 43, 0.95))';
+            winMessage.style.animation = 'fadeIn 0.5s forwards, shake 0.5s 0.5s';
+            
+            congratulationsMessage.innerText = '⏰ Time\'s Up!';
+            congratulationsMessage.style.color = '#fff';
+            winDetailsMessage.innerHTML = `<div style="font-size: 60px; margin: 20px 0;">😢</div><div>Game Over! Try Again?</div>`;
+            winDetailsMessage.style.color = '#fff';
+            
+            // Hide next button, show replay and menu
+            nextButton.style.display = 'none';
+            restartButton.style.display = 'none';
+            replayButton.style.display = 'block';
+            if (menuButton) menuButton.style.display = 'block';
+        };
+        
+        const saveLevelProgress = (level, stars, moves, time) => {
+            const progress = JSON.parse(localStorage.getItem('gameProgress') || '{}');
+            
+            // Always save completion data, but only update if stars are better or it's the first completion
+            if (!progress[level] || !progress[level].completed || progress[level].stars < stars) {
+                progress[level] = { 
+                    stars, 
+                    moves, 
+                    time, 
+                    completed: true,
+                    unlocked: true 
+                };
+            }
+            
+            // Unlock next level
+            if (!progress[level + 1]) {
+                progress[level + 1] = { unlocked: true };
+            }
+            
+            localStorage.setItem('gameProgress', JSON.stringify(progress));
+        };
+        
+        const displayStars = (stars) => {
+            const starsContainer = document.createElement('div');
+            starsContainer.style.cssText = 'font-size: 40px; margin: 15px 0;';
+            for (let i = 0; i < 3; i++) {
+                const star = document.createElement('span');
+                star.textContent = i < stars ? '⭐' : '☆';
+                star.style.cssText = 'margin: 0 5px; display: inline-block; animation: starPop 0.5s ease-out;';
+                star.style.animationDelay = `${i * 0.2}s`;
+                starsContainer.appendChild(star);
+            }
+            winDetailsMessage.appendChild(starsContainer);
+        };
 
         board.addEventListener('click', event => {
+            if (gameOver) return;
+            
             if (event.target.closest('.card') && !event.target.closest('.card').classList.contains('flipped')) {
                 if (flippedCards < 2) {
                     const card = event.target.closest('.card');
@@ -361,6 +472,12 @@
         quitButton.addEventListener('click', () => {
             window.location.href = 'index1.html';
         });
+        
+        if (menuButton) {
+            menuButton.addEventListener('click', () => {
+                window.location.href = 'levelbox.html';
+            });
+        }
 
         startGame();
     </script>

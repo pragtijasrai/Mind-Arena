@@ -95,7 +95,7 @@
         .card {
             width: 76px;
             height: 76px;
-            background: rgba(139, 195, 74, 0.9);
+            background: linear-gradient(135deg, rgba(139, 195, 74, 0.95), rgba(104, 159, 56, 0.95));
             border: 2.5px solid #6b8e23;
             display: flex;
             justify-content: center;
@@ -104,13 +104,13 @@
             cursor: pointer;
             border-radius: 10px;
             position: relative;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 0 10px rgba(107, 142, 35, 0.7);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(107, 142, 35, 0.7), 0 4px 8px rgba(0,0,0,0.4);
         }
 
         .card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(154, 205, 50, 0.8);
+            transform: scale(1.08) translateY(-5px) rotate(2deg);
+            box-shadow: 0 0 25px rgba(154, 205, 50, 0.9), 0 10px 20px rgba(0,0,0,0.5);
         }
 
         .card-back {
@@ -239,6 +239,8 @@
                     <button class="btn btn-custom" id="undoButton" style="display: none;">Undo ⏪</button>
                     <div style="height: 10px;"></div>
                     <button class="btn btn-custom" id="restartButton">Restart 🔄</button>
+                    <div style="height: 10px;"></div>
+                    <button class="btn btn-danger" id="menuButton" style="display: none;">Menu 📋</button>
                     <div style="height: 10px;"></div>
                     <button class="btn btn-danger" id="quitButton">Quit ❌</button>
                 </div>
